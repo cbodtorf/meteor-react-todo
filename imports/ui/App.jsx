@@ -8,6 +8,14 @@ import Task from './Task.jsx'
 
 // App Component -- represents the whole App
 class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      hideCompleted: false,
+    }
+  }
+
   /******************
   * handleSubmit
   * @param click event [auto on form submission]
@@ -27,13 +35,24 @@ class App extends Component {
     ReactDOM.findDOMNode(this.refs.textInput).value = ''
   }
 
+  // toggle whether to hide/show completed items
+  toggleHideCompleted() {
+    this.setState({
+      hideCompleted: !this.state.hideCompleted,
+    })
+  }
+
   /******************
   * renderTasks
   * function to render from Task.jsx
   * @returns JSX object with task data
   *******************/
   renderTasks() {
-    return this.props.tasks.map((task) => (
+    let filteredTasks = this.props.tasks
+    if (this.state.hideCompleted) {
+      filteredTasks = filteredTasks.filter(task => !task.checked)
+    }
+    return filteredTasks.map((task) => (
       <Task key={task._id} task={task} />
     ));
   }
@@ -42,7 +61,17 @@ class App extends Component {
     return (
       <div className="container">
         <header>
-          <h1>Todo Lisp</h1>
+          <h1>Todo Lisp ({this.props.incompleteCount})</h1>
+
+          <label className="hide-completed">
+            <input
+              type="checkbox"
+              readOnly
+              checked={this.state.hideCompleted}
+              onClick={this.toggleHideCompleted.bind(this)}
+            />
+          Hide Completed Tasks
+          </label>
 
           <form className="new-task" onSubmit={this.handleSubmit.bind(this)} >
             <input
@@ -65,6 +94,7 @@ class App extends Component {
 
 App.propTypes = {
   tasks: PropTypes.array.isRequired,
+  incompleteCount: PropTypes.number.isRequired,
 };
 
 // createContainer wraps App component and gives it access
@@ -72,5 +102,6 @@ App.propTypes = {
 export default createContainer(() => {
   return {
     tasks: Tasks.find({}, {sort: {createdAt: -1 } }).fetch(),
+    incompleteCount: Tasks.find({ checked: { $ne: true } }).count(),
   };
 }, App);
