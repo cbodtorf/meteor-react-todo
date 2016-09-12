@@ -67,8 +67,10 @@ App.propTypes = {
   tasks: PropTypes.array.isRequired,
 };
 
+// createContainer wraps App component and gives it access
+// to Meteor Data Collection.
 export default createContainer(() => {
   return {
-    tasks: Tasks.find({}).fetch(),
+    tasks: Tasks.find({}, {sort: {createdAt: -1 } }).fetch(),
   };
 }, App);
