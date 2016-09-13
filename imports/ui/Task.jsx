@@ -7,21 +7,21 @@ export default class Task extends Component {
 
   toggleChecked() {
     /******************
-    * Tasks.update
+    * Uses Meteors call method to separate database concerns to server. (imports/ui/tasks.js called in server/main.js)
+    * @param (str) method defined in server for checking off tasks
     * @param ({}._id) indentifies a subset of collection to update
     * @param (obj) calls $set to toggle current value
     *******************/
-    Tasks.update(this.props.task._id, {
-      $set: { checked: !this.props.task.checked },
-    });
+    Meteor.call('tasks.setChecked', this.props.task._id, !this.props.task.checked)
   }
 
   deleteThisTask() {
     /******************
-    * Tasks.remove
+    * Uses Meteors call method to separate database concerns to server. (imports/ui/tasks.js called in server/main.js)
+    * @param (str) method defined in server for removing tasks
     * @param (int) indentifies a subset of collection to remove
     *******************/
-    Tasks.remove(this.props.task._id)
+    Meteor.call('tasks.remove', this.props.task._id)
   }
 
   render() {
